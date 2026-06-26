@@ -1,44 +1,58 @@
-import streamlit as str
-import pandas as pd
-from data_fetcher import fetch_stock_history
-from analyzer import calculate_indicators
+import streamlit as st
 
-# Set page style configuration
-str.set_page_config(page_title="StockPulse Dashboard", layout="wide")
+# Set up page styling configuration
+st.set_page_config(page_title="StockPulse Dashboard", layout="wide")
 
-str.title("📈 StockPulse: Live Market Analytics Dashboard")
-str.markdown("Welcome to your personal market data terminal.")
+# --- SIDEBAR NAVIGATION (Days 3-5 Goal) ---
+st.sidebar.title("🎛️ Navigation Panel")
+page = st.sidebar.radio(
+    "Go To Page:", 
+    ["📊 Dashboard", "🔍 Search & Trade", "📜 Transaction History"]
+)
 
-# --- SIDEBAR CONTROL PANEL ---
-str.sidebar.header("🕹️ Control Panel")
-user_ticker = str.sidebar.text_input("Enter Stock Ticker Symbol:", value="AAPL").upper().strip()
-time_window = str.sidebar.selectbox("Select Timeframe:", options=["1mo", "3mo", "6mo", "1y"])
+# Mock data for Week 3 UI rendering (We will wire this to the database in Week 4)
+mock_cash = 10000.00
+mock_net_worth = 12450.75
 
-# --- DATA PROCESSING LINK ---
-if user_ticker:
-    raw_df = fetch_stock_history(user_ticker, timeframe=time_window)
+# --- PAGE 1: DASHBOARD ---
+if page == "📊 Dashboard":
+    st.title("📈 StockPulse Market Analytics Dashboard")
+    st.markdown("Welcome back, **trader1**! Here is your current financial standing:")
     
-    if raw_df is not None and not raw_df.empty:
-        # Pass the data to your calculation engine
-        analyzed_df = calculate_indicators(raw_df)
+    # Days 1-2 Goal: Metric card showing wallet balance
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric(label="💰 Virtual Cash Balance", value=f"${mock_cash:,.2f}")
+    with col2:
+        st.metric(label="📊 Total Portfolio Net Worth", value=f"${mock_net_worth:,.2f}")
         
-        # Display key metrics side-by-side
-        latest_row = analyzed_df.iloc[-1]
-        latest_price = round(latest_row['Close'], 2)
-        latest_return = round(latest_row['Daily_Return_%'], 2)
-        
-        col1, col2 = str.columns(2)
-        col1.metric("Current Price", f"${latest_price}")
-        col2.metric("Daily Change", f"{latest_return}%", delta=f"{latest_return}%")
-        
-        # --- CHARTS SECTION ---
-        str.subheader(f"📊 Closing Price & 5-Day Trend for {user_ticker}")
-        # Charting the closing price and the simple moving average trend line
-        str.line_chart(analyzed_df[['Close', '5_Day_SMA']])
-        
-        # --- DATA ROWS SECTION ---
-        str.subheader("📋 Recent Analytics Data Log")
-        str.dataframe(analyzed_df[['Close', 'Daily_Return_%', '5_Day_SMA']].tail(10))
-        
-    else:
-        str.error("Could not fetch data for that symbol. Please type a valid stock ticker.")
+    st.info("💡 Tip: Use the navigation menu on the left side to look up active live stock symbols or view historical logs.")
+
+# --- PAGE 2: SEARCH & TRADE ---
+elif page == "🔍 Search & Trade":
+    st.title("💱 Live Asset Trading Desk")
+    
+    # Days 3-5 Goal: st.text_input search box
+    ticker_input = st.text_input("Enter Stock Ticker Symbol (e.g., AAPL, TSLA, NVDA):", "AAPL")
+    clean_ticker = ticker_input.upper().strip()
+    
+    st.subheader(f"Trading Actions for {clean_ticker}")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        shares_buy = st.number_input("Shares to Buy", min_value=1, value=1, step=1)
+        if st.button("🚀 Execute Buy Order", use_container_width=True):
+            st.warning("Backend engine connection coming in Week 4!")
+            
+    with col2:
+        shares_sell = st.number_input("Shares to Sell", min_value=1, value=1, step=1)
+        if st.button("📉 Execute Sell Order", use_container_width=True):
+            st.warning("Backend engine connection coming in Week 4!")
+
+# --- PAGE 3: TRANSACTION HISTORY ---
+elif page == "📜 Transaction History":
+    st.title("📜 Account Transaction History Log")
+    st.markdown("Review your historical buy and sell ledger actions below:")
+    
+    # Placeholders for Week 4 database fetching
+    st.write("No transaction records found for this trade session yet.")
